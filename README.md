@@ -1,5 +1,10 @@
 # Daily Devotion Discussion App
 
+## PURPOSE daily-devotion
+A social app that breaks down the bible into 365 days and then lets users read along and comment online to share their thoughts and ask questions about that days devotion.
+
+Dedicated to Uncle Jimmy Schwing of New Iberia, LA. A man to admire. 
+
 A PHP MVC web application for a private Christian devotional discussion group with date-based devotions, nested comments (up to 3 levels), and role-based permissions.
 
 ## Features

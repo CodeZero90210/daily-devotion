@@ -27,3 +27,7 @@ composer.lock
 # Database config (if sensitive)
 config/database.php
 
+# VScode FTP config
+.vscode/
+
+.vscode/sftp.json
