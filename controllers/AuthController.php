@@ -168,43 +168,9 @@ class AuthController {
         $userModel = new User();
         $user = $userModel->findByEmail($email);
         
-        // #region agent log
-        $logPath = __DIR__ . '/../.cursor/debug.log';
-        $logEntry = json_encode([
-            'sessionId' => 'debug-session',
-            'runId' => 'run1',
-            'hypothesisId' => 'A',
-            'location' => 'AuthController.php:168',
-            'message' => 'Password reset request received',
-            'data' => [
-                'email' => $email,
-                'userFound' => $user ? true : false,
-                'userId' => $user['id'] ?? null
-            ],
-            'timestamp' => round(microtime(true) * 1000)
-        ]) . "\n";
-        file_put_contents($logPath, $logEntry, FILE_APPEND);
-        // #endregion
-        
         // Always show success message to prevent email enumeration
         if ($user) {
             $token = $userModel->createPasswordResetToken($user['id']);
-            
-            // #region agent log
-            $logEntry = json_encode([
-                'sessionId' => 'debug-session',
-                'runId' => 'run1',
-                'hypothesisId' => 'B',
-                'location' => 'AuthController.php:177',
-                'message' => 'Token creation result',
-                'data' => [
-                    'tokenCreated' => $token ? true : false,
-                    'tokenLength' => $token ? strlen($token) : 0
-                ],
-                'timestamp' => round(microtime(true) * 1000)
-            ]) . "\n";
-            file_put_contents($logPath, $logEntry, FILE_APPEND);
-            // #endregion
             
             if ($token) {
                 // In a production environment, you would send an email here
@@ -214,37 +180,7 @@ class AuthController {
                 
                 $_SESSION['success'] = 'Password reset link has been generated.';
                 $_SESSION['reset_url'] = $resetUrl;
-                
-                // #region agent log
-                $logEntry = json_encode([
-                    'sessionId' => 'debug-session',
-                    'runId' => 'run1',
-                    'hypothesisId' => 'C',
-                    'location' => 'AuthController.php:191',
-                    'message' => 'Reset URL set in session',
-                    'data' => [
-                        'resetUrlSet' => isset($_SESSION['reset_url']),
-                        'resetUrlLength' => strlen($resetUrl),
-                        'sessionId' => session_id()
-                    ],
-                    'timestamp' => round(microtime(true) * 1000)
-                ]) . "\n";
-                file_put_contents($logPath, $logEntry, FILE_APPEND);
-                // #endregion
             } else {
-                // #region agent log
-                $logEntry = json_encode([
-                    'sessionId' => 'debug-session',
-                    'runId' => 'run1',
-                    'hypothesisId' => 'D',
-                    'location' => 'AuthController.php:203',
-                    'message' => 'Token creation failed',
-                    'data' => ['error' => 'Token creation returned false'],
-                    'timestamp' => round(microtime(true) * 1000)
-                ]) . "\n";
-                file_put_contents($logPath, $logEntry, FILE_APPEND);
-                // #endregion
-                
                 $_SESSION['error'] = 'Failed to generate reset token. Please try again.';
             }
         } else {
