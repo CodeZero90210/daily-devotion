@@ -78,6 +78,24 @@ switch ($segments[0]) {
         }
         break;
         
+    case 'forgot-password':
+        $controller = new AuthController();
+        if ($requestMethod === 'POST') {
+            $controller->requestPasswordReset();
+        } else {
+            $controller->showForgotPassword();
+        }
+        break;
+        
+    case 'reset-password':
+        $controller = new AuthController();
+        if ($requestMethod === 'POST') {
+            $controller->resetPassword();
+        } else {
+            $controller->showResetPassword();
+        }
+        break;
+        
     case 'devotion':
         $controller = new DevotionController();
         if (isset($segments[1]) && $segments[1] === 'today') {
@@ -153,7 +171,12 @@ switch ($segments[0]) {
         break;
         
     default:
-        http_response_code(404);
-        die('Page not found');
+        $controller = new AuthController();
+        if ($requestMethod === 'POST') {
+            $controller->login();
+        } else {
+            $controller->showLogin();
+        }
+        break;
 }
 

@@ -21,6 +21,7 @@ ob_start();
         <button type="submit">Login</button>
     </form>
     
+    <p><a href="/forgot-password">Forgot Password?</a></p>
     <p><a href="/register">Don't have an account? Register here</a></p>
 </div>
 

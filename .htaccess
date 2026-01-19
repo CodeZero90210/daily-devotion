@@ -1,0 +1,23 @@
+RewriteEngine On
+
+# Local dev: do NOT redirect to production
+RewriteCond %{HTTP_HOST} ^(housecall\.local|localhost)$ [NC]
+RewriteRule .* - [L]
+
+# Optional: force www on production (Hostinger already forces HTTPS, so we don't)
+RewriteCond %{HTTP_HOST} ^jlee\.me$ [NC]
+RewriteRule ^ https://www.jlee.me%{REQUEST_URI} [R=301,L]
+
+# If someone requests /public/... directly, allow it (prevents /public/public)
+RewriteCond %{REQUEST_URI} ^/public/ [NC]
+RewriteRule ^ - [L]
+
+# If a real file/dir exists in /public, serve it from there
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Otherwise, route everything to the front controller in /public
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ public/index.php [QSA,L]

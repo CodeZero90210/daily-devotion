@@ -106,5 +106,76 @@ class User {
         ];
         return $labels[$role] ?? $role;
     }
+    
+    /**
+     * Create password reset token
+     */
+    public function createPasswordResetToken($userId) {
+        // Generate secure random token
+        $token = bin2hex(random_bytes(32));
+        
+        // Token expires in 1 hour
+        $expiresAt = date('Y-m-d H:i:s', time() + 3600);
+        
+        $stmt = $this->db->prepare("
+            INSERT INTO password_reset_tokens (user_id, token, expires_at) 
+            VALUES (?, ?, ?)
+        ");
+        
+        if ($stmt->execute([$userId, $token, $expiresAt])) {
+            return $token;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Find password reset token
+     */
+    public function findPasswordResetToken($token) {
+        $stmt = $this->db->prepare("
+            SELECT prt.*, u.email, u.display_name 
+            FROM password_reset_tokens prt
+            JOIN users u ON prt.user_id = u.id
+            WHERE prt.token = ? 
+            AND prt.expires_at > NOW() 
+            AND prt.used_at IS NULL
+        ");
+        $stmt->execute([$token]);
+        return $stmt->fetch();
+    }
+    
+    /**
+     * Mark password reset token as used
+     */
+    public function markPasswordResetTokenAsUsed($token) {
+        $stmt = $this->db->prepare("
+            UPDATE password_reset_tokens 
+            SET used_at = NOW() 
+            WHERE token = ?
+        ");
+        return $stmt->execute([$token]);
+    }
+    
+    /**
+     * Update user password
+     */
+    public function updatePassword($userId, $newPassword) {
+        $passwordHash = password_hash($newPassword, PASSWORD_ARGON2ID);
+        if ($passwordHash === false) {
+            $passwordHash = password_hash($newPassword, PASSWORD_BCRYPT);
+        }
+        
+        $stmt = $this->db->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
+        return $stmt->execute([$passwordHash, $userId]);
+    }
+    
+    /**
+     * Cleanup expired tokens (optional maintenance method)
+     */
+    public function cleanupExpiredTokens() {
+        $stmt = $this->db->prepare("DELETE FROM password_reset_tokens WHERE expires_at < NOW()");
+        return $stmt->execute();
+    }
 }
 
