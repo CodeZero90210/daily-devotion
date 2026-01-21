@@ -51,3 +51,13 @@ function validateDate($date) {
     return $d && $d->format('Y-m-d') === $date;
 }
 
+/**
+ * Format devotion date for display (Month Day only, no year)
+ * Example: "January 1", "December 25"
+ * 
+ * @param string $date Date in YYYY-MM-DD format
+ * @return string Formatted date string (F j format)
+ */
+function formatDevotionDate($date) {
+    return date('F j', strtotime($date));
+}

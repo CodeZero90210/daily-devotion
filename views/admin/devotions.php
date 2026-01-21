@@ -21,7 +21,7 @@ ob_start();
         <tbody>
             <?php foreach ($devotions as $devotion): ?>
                 <tr>
-                    <td><?= escapeHtml($devotion['devotion_date']) ?></td>
+                    <td><?= escapeHtml(formatDevotionDate($devotion['devotion_date'])) ?></td>
                     <td><?= escapeHtml($devotion['scripture_references'] ?? '') ?></td>
                     <td>
                         <?php

@@ -1,11 +1,11 @@
 <?php
-$title = 'Devotion - ' . date('F j, Y', strtotime($devotion['devotion_date']));
+$title = 'Devotion - ' . formatDevotionDate($devotion['devotion_date']);
 ob_start();
 ?>
 
 <div class="devotion-page">
     <div class="devotion-header">
-        <h2>Devotion for <?= date('F j, Y', strtotime($devotion['devotion_date'])) ?></h2>
+        <h2>Devotion for <?= formatDevotionDate($devotion['devotion_date']) ?></h2>
     </div>
     
     <?php if (!empty($readings)): ?>
