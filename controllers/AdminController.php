@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/validation.php';
+require_once __DIR__ . '/../includes/DevotionHelper.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Devotion.php';
 require_once __DIR__ . '/../models/Reading.php';
@@ -31,6 +32,8 @@ class AdminController {
         requireRole('site_pastor');
         
         $devotions = $this->devotionModel->getAll();
+        // Sort by calendar order (January 1 → December 31), ignoring year
+        $devotions = sortDevotionsByCalendarOrder($devotions);
         $csrfToken = getCSRFToken();
         
         require __DIR__ . '/../views/admin/devotions.php';
