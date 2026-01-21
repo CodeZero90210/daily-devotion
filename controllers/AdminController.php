@@ -42,6 +42,7 @@ class AdminController {
     public function showCreateDevotion() {
         requireRole('site_pastor');
         
+        $readings = []; // Initialize empty readings array for create form
         $csrfToken = getCSRFToken();
         require __DIR__ . '/../views/admin/devotion_form.php';
     }
@@ -68,12 +69,16 @@ class AdminController {
         if ($this->devotionModel->create($date, $scriptureReferences, $verseText, $authorParagraphsEnabled)) {
             $devotionId = $this->devotionModel->findByDate($date)['id'];
             
-            // Handle readings
-            if (isset($_POST['readings']) && is_array($_POST['readings'])) {
-                foreach ($_POST['readings'] as $order => $reference) {
-                    if (!empty($reference)) {
-                        $this->readingModel->create($devotionId, $order + 1, sanitizeString($reference));
-                    }
+            // Handle readings - 4 fixed categories
+            $categories = ['Old Testament', 'New Testament', 'Psalms', 'Proverbs'];
+            foreach ($categories as $category) {
+                $key = 'reading_' . str_replace(' ', '_', strtolower($category));
+                if (isset($_POST[$key]) && !empty(trim($_POST[$key]))) {
+                    $this->readingModel->upsertByCategory(
+                        $devotionId, 
+                        $category, 
+                        sanitizeString($_POST[$key])
+                    );
                 }
             }
             
@@ -99,7 +104,14 @@ class AdminController {
             die('Devotion not found');
         }
         
-        $readings = $this->readingModel->getByDevotionId($id);
+        // Get readings organized by category
+        $allReadings = $this->readingModel->getByDevotionId($id);
+        $readingsByCategory = [];
+        foreach ($allReadings as $reading) {
+            $readingsByCategory[$reading['category']] = $reading;
+        }
+        
+        $readings = $readingsByCategory;
         $csrfToken = getCSRFToken();
         
         require __DIR__ . '/../views/admin/devotion_form.php';
@@ -138,14 +150,20 @@ class AdminController {
         ];
         
         if ($this->devotionModel->update($id, $updateData)) {
-            // Update readings (delete old, insert new)
-            $this->readingModel->deleteByDevotionId($id);
-            
-            if (isset($_POST['readings']) && is_array($_POST['readings'])) {
-                foreach ($_POST['readings'] as $order => $reference) {
-                    if (!empty($reference)) {
-                        $this->readingModel->create($id, $order + 1, sanitizeString($reference));
-                    }
+            // Update readings - 4 fixed categories
+            $categories = ['Old Testament', 'New Testament', 'Psalms', 'Proverbs'];
+            foreach ($categories as $category) {
+                $key = 'reading_' . str_replace(' ', '_', strtolower($category));
+                if (isset($_POST[$key]) && !empty(trim($_POST[$key]))) {
+                    // Create or update reading for this category
+                    $this->readingModel->upsertByCategory(
+                        $id, 
+                        $category, 
+                        sanitizeString($_POST[$key])
+                    );
+                } else {
+                    // Delete reading for this category if empty
+                    $this->readingModel->deleteByDevotionIdAndCategory($id, $category);
                 }
             }
             

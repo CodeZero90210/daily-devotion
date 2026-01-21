@@ -20,6 +20,36 @@ ob_start();
         </div>
         
         <div class="form-group">
+            <label>Readings:</label>
+            <div class="readings-container">
+                <div class="reading-item">
+                    <label for="reading_old_testament">Old Testament:</label>
+                    <input type="text" id="reading_old_testament" name="reading_old_testament" 
+                           value="<?= $isEdit && isset($readings['Old Testament']) ? escapeHtml($readings['Old Testament']['scripture_reference']) : '' ?>" 
+                           placeholder="e.g., Genesis 1:1-2:25">
+                </div>
+                <div class="reading-item">
+                    <label for="reading_new_testament">New Testament:</label>
+                    <input type="text" id="reading_new_testament" name="reading_new_testament" 
+                           value="<?= $isEdit && isset($readings['New Testament']) ? escapeHtml($readings['New Testament']['scripture_reference']) : '' ?>" 
+                           placeholder="e.g., Matthew 1:1-2:12">
+                </div>
+                <div class="reading-item">
+                    <label for="reading_psalms">Psalms:</label>
+                    <input type="text" id="reading_psalms" name="reading_psalms" 
+                           value="<?= $isEdit && isset($readings['Psalms']) ? escapeHtml($readings['Psalms']['scripture_reference']) : '' ?>" 
+                           placeholder="e.g., Psalm 1:1-6">
+                </div>
+                <div class="reading-item">
+                    <label for="reading_proverbs">Proverbs:</label>
+                    <input type="text" id="reading_proverbs" name="reading_proverbs" 
+                           value="<?= $isEdit && isset($readings['Proverbs']) ? escapeHtml($readings['Proverbs']['scripture_reference']) : '' ?>" 
+                           placeholder="e.g., Proverbs 1:1-6">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
             <label for="scripture_references">Scripture References (comma-separated):</label>
             <textarea id="scripture_references" name="scripture_references" rows="2"><?= $isEdit ? escapeHtml($devotion['scripture_references'] ?? '') : '' ?></textarea>
         </div>
@@ -37,38 +67,10 @@ ob_start();
             </label>
         </div>
         
-        <div class="form-group">
-            <label>Readings:</label>
-            <div id="readings-container">
-                <?php
-                $existingReadings = $isEdit ? $readings : [];
-                $readingsCount = max(count($existingReadings), 3);
-                for ($i = 0; $i < $readingsCount; $i++):
-                ?>
-                    <div class="reading-item">
-                        <input type="text" name="readings[]" 
-                               value="<?= isset($existingReadings[$i]) ? escapeHtml($existingReadings[$i]['scripture_reference']) : '' ?>" 
-                               placeholder="e.g., John 3:16-17">
-                    </div>
-                <?php endfor; ?>
-            </div>
-            <button type="button" id="add-reading">Add Another Reading</button>
-        </div>
-        
         <button type="submit"><?= $isEdit ? 'Update' : 'Create' ?> Devotion</button>
         <a href="/admin/devotions">Cancel</a>
     </form>
 </div>
-
-<script>
-document.getElementById('add-reading').addEventListener('click', function() {
-    const container = document.getElementById('readings-container');
-    const div = document.createElement('div');
-    div.className = 'reading-item';
-    div.innerHTML = '<input type="text" name="readings[]" placeholder="e.g., John 3:16-17">';
-    container.appendChild(div);
-});
-</script>
 
 <?php
 $content = ob_get_clean();
